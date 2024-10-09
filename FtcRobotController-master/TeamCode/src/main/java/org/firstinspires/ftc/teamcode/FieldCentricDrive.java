@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-//OMGGGPOOPOOPEEPEE
+
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Field-Centric Drive")
 public class FieldCentricDrive extends OpMode {
 
