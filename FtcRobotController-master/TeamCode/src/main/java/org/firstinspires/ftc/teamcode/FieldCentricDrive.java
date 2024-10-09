@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-int x=0
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,7 +24,7 @@ public class FieldCentricDrive extends OpMode {
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnt = BNO055IMU.AngleUnit.DEGREES;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
     }
