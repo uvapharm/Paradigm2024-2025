@@ -1,8 +1,4 @@
 package org.firstinspires.ftc.teamcode;
-<<<<<<< HEAD
-
-=======
->>>>>>> cd51bcfb8368f5cdf7cf45d6b8b68e6a876d48aa
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
