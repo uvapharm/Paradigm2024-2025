@@ -16,7 +16,6 @@ public class FieldCentric extends OpMode {
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
     //BNO055IMU imu;
     Orientation angles;
-    //peepee poopoo
 
     @Override
     public void init() {
