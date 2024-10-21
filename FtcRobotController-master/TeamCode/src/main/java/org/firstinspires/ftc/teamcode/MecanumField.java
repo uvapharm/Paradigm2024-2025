@@ -1,20 +1,22 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.hardware.bosch.BNO055IMU;
+
+import static com.google.blocks.ftcrobotcontroller.hardware.HardwareType.BNO055IMU;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
+//import com.qualcomm.robotcore.hardware.BNO055IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Field-Centric Drive")
-public class FieldCentricDrive extends OpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Field-Centric Mecanum Drive")
+public class MecanumField extends OpMode {
 
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
-    BNO055IMU imu;
+    //BNO055IMU imu;
     Orientation angles;
-
+    // peepeepepepepe
     @Override
     public void init() {
         frontLeftMotor = hardwareMap.get(DcMotor.class, "front_left_motor");
@@ -22,10 +24,10 @@ public class FieldCentricDrive extends OpMode {
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
 
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
+        //BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        //parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        //imu = hardwareMap.get(BNO055IMU.class, "imu");
+        //imu.initialize(parameters);
     }
 
     @Override
@@ -34,7 +36,7 @@ public class FieldCentricDrive extends OpMode {
         double y = gamepad1.left_stick_y;
         double rotation = gamepad1.right_stick_x;
 
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        //angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         double heading = angles.firstAngle;
         double headingRad = Math.toRadians(heading);
 
