@@ -8,14 +8,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+//import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Field-Centric Mecanum Drive")
 public class MecanumField extends OpMode {
 
-    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
+    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
     //BNO055IMU imu;
-    Orientation angles;
+    //Orientation angles;
+    float outakePower;
 
     @Override
     public void init() {
@@ -23,6 +24,8 @@ public class MecanumField extends OpMode {
         frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
+        outtakeMotorLeft = hardwareMap.get(DcMotor.class, "outLeft");
+        outtakeMotorRight = hardwareMap.get(DcMotor.class, "outRight");
 
         //BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         //parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -32,20 +35,20 @@ public class MecanumField extends OpMode {
 
     @Override
     public void loop() {
-        double x = -gamepad1.left_stick_x;
-        double y = gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x;
+        double y = -gamepad1.left_stick_y;
         double rotation = gamepad1.right_stick_x;
 
         //angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double heading = angles.firstAngle;
-        double headingRad = Math.toRadians(heading);
+        //double heading = angles.firstAngle;
+        //double headingRad = Math.toRadians(heading);
 
-        double temp = y * Math.cos(headingRad) - x * Math.sin(headingRad);
-        x = x * Math.cos(headingRad) + y * Math.sin(headingRad);
-        y = temp;
+        //double temp = y * Math.cos(headingRad) - x * Math.sin(headingRad);
+        //x = x * Math.cos(headingRad) + y * Math.sin(headingRad);
+        //y = temp;
 
         double frontLeftPower = y + x + rotation;
-        double frontRightPower = y - x - rotation;
+        double frontRightPower = -y + x + rotation;
         double backLeftPower = y - x + rotation;
         double backRightPower = y + x - rotation;
 
@@ -61,5 +64,12 @@ public class MecanumField extends OpMode {
         frontRightMotor.setPower(frontRightPower);
         backLeftMotor.setPower(backLeftPower);
         backRightMotor.setPower(backRightPower);
+
+
+
+        outakePower = -gamepad2.left_stick_y;
+        outtakeMotorLeft.setPower(0.25*outakePower);
+        outtakeMotorRight.setPower(0.25*outakePower);
+
     }
 }
