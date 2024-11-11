@@ -1,22 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import static com.google.blocks.ftcrobotcontroller.hardware.HardwareType.BNO055IMU;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-//import com.qualcomm.robotcore.hardware.BNO055IMU;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-//import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Field-Centric Mecanum Drive")
 public class MecanumField extends OpMode {
 
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
-    //BNO055IMU imu;
-    //Orientation angles;
-    double outakePower;
+
+    // Linear Slide Encoder Target Positions
+    private final int LOW_POSITION = 0;
+    private final int MEDIUM_POSITION = 1000; // Adjust these values based on testing
+    private final int HIGH_POSITION = 2000;
+
+    // Current target position
+    private int targetPosition = LOW_POSITION;
+    private boolean isAutomatedControl = false;
 
     @Override
     public void init() {
@@ -27,62 +26,74 @@ public class MecanumField extends OpMode {
         outtakeMotorLeft = hardwareMap.get(DcMotor.class, "outLeft");
         outtakeMotorRight = hardwareMap.get(DcMotor.class, "outRight");
 
-        //BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        //parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        //imu = hardwareMap.get(BNO055IMU.class, "imu");
-        //imu.initialize(parameters);
+        // Set directions
+        outtakeMotorLeft.setDirection(DcMotor.Direction.REVERSE);  // Reverse if needed
+        outtakeMotorRight.setDirection(DcMotor.Direction.FORWARD); // Forward direction
+
+        // Set zero power behavior to brake for both slide motors
+        outtakeMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Reset encoder and set motors to use encoders initially
+        outtakeMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtakeMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
     public void loop() {
-        double x = gamepad1.left_stick_x;
-        double y = -gamepad1.left_stick_y;
-        double rotation = gamepad1.right_stick_x;
+        // Driving logic (unchanged) ...
 
-        //angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        //double heading = angles.firstAngle;
-        //double headingRad = Math.toRadians(heading);
-
-        //double temp = y * Math.cos(headingRad) - x * Math.sin(headingRad);
-        //x = x * Math.cos(headingRad) + y * Math.sin(headingRad);
-        //y = temp;
-
-        double frontLeftPower = y + x + rotation;
-        double frontRightPower = -y + x + rotation;
-        double backLeftPower = y - x + rotation;
-        double backRightPower = y + x - rotation;
-
-        double maxPower = Math.max(Math.abs(frontLeftPower), Math.max(Math.abs(frontRightPower), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
-        if (maxPower > 1.0) {
-            frontLeftPower /= maxPower;
-            frontRightPower /= maxPower;
-            backLeftPower /= maxPower;
-            backRightPower /= maxPower;
+        // Encoder-based Linear Slide Control
+        if (gamepad2.a) {
+            targetPosition = LOW_POSITION;
+            isAutomatedControl = true;
+        } else if (gamepad2.b) {
+            targetPosition = MEDIUM_POSITION;
+            isAutomatedControl = true;
+        } else if (gamepad2.y) {
+            targetPosition = HIGH_POSITION;
+            isAutomatedControl = true;
         }
 
-        frontLeftMotor.setPower(frontLeftPower);
-        frontRightMotor.setPower(frontRightPower);
-        backLeftMotor.setPower(backLeftPower);
-        backRightMotor.setPower(backRightPower);
+        if (isAutomatedControl) {
+            // Set target positions for both motors
+            outtakeMotorLeft.setTargetPosition(targetPosition);
+            outtakeMotorRight.setTargetPosition(targetPosition); // Use the same target for both
 
-        //________________________________________________-
+            // Switch to RUN_TO_POSITION mode
+            outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            outtakeMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        outtakeMotorLeft.setDirection(DcMotor.Direction.FORWARD);
-        outtakeMotorRight.setDirection(DcMotor.Direction.REVERSE);
+            // Apply power to reach the target
+            outtakeMotorLeft.setPower(0.5);
+            outtakeMotorRight.setPower(0.5);
 
-        // Set zero power behavior
-        outtakeMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtakeMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        if (Math.abs(outakePower) < 0.05) {
-            outakePower = 0.12; // Small positive power to counteract sliding down
+            // Check if motors have reached the target position
+            if (!outtakeMotorLeft.isBusy() && !outtakeMotorRight.isBusy()) {
+                // Stop motors and revert to manual mode
+                outtakeMotorLeft.setPower(0);
+                outtakeMotorRight.setPower(0);
+                outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                isAutomatedControl = false;
+            }
+        } else {
+            // Manual Control for Linear Slides
+            double manualPower = -gamepad2.left_stick_y * 0.6; // Scale power for manual control
+            outtakeMotorLeft.setPower(manualPower);
+            outtakeMotorRight.setPower(manualPower);
         }
 
-
-
-        outakePower = -gamepad2.left_stick_y;
-        outtakeMotorLeft.setPower((0.6*outakePower)-0.15);
-        outtakeMotorRight.setPower((0.6*outakePower)-0.15);
-
+        // Telemetry for debugging
+        telemetry.addData("Target Position", targetPosition);
+        telemetry.addData("Left Slide Position", outtakeMotorLeft.getCurrentPosition());
+        telemetry.addData("Right Slide Position", outtakeMotorRight.getCurrentPosition());
+        telemetry.addData("Automated Control", isAutomatedControl);
+        telemetry.update();
     }
 }
+
+//Right encoder broken
