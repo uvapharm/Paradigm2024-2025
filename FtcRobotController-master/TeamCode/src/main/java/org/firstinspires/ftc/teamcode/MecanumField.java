@@ -16,7 +16,7 @@ public class MecanumField extends OpMode {
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
     //BNO055IMU imu;
     //Orientation angles;
-    float outakePower;
+    double outakePower;
 
     @Override
     public void init() {
@@ -65,11 +65,24 @@ public class MecanumField extends OpMode {
         backLeftMotor.setPower(backLeftPower);
         backRightMotor.setPower(backRightPower);
 
+        //________________________________________________-
+
+        outtakeMotorLeft.setDirection(DcMotor.Direction.FORWARD);
+        outtakeMotorRight.setDirection(DcMotor.Direction.REVERSE);
+
+        // Set zero power behavior
+        outtakeMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        if (Math.abs(outakePower) < 0.05) {
+            outakePower = 0.12; // Small positive power to counteract sliding down
+        }
+
 
 
         outakePower = -gamepad2.left_stick_y;
-        outtakeMotorLeft.setPower(0.25*outakePower);
-        outtakeMotorRight.setPower(0.25*outakePower);
+        outtakeMotorLeft.setPower((0.6*outakePower)-0.15);
+        outtakeMotorRight.setPower((0.6*outakePower)-0.15);
 
     }
 }
