@@ -17,6 +17,10 @@ public class MecanumField extends OpMode {
     private int targetPosition = LOW_POSITION;
     private boolean isAutomatedControl = false;
 
+
+    // Define a small holding power to prevent sliding
+    private final double HOLDING_POWER = 0.1;  // Adjust this value as needed
+
     @Override
     public void init() {
         frontLeftMotor = hardwareMap.get(DcMotor.class, "front_left_motor");
@@ -44,7 +48,30 @@ public class MecanumField extends OpMode {
 
     @Override
     public void loop() {
-        // Driving logic (unchanged) ...
+        // Driving logic
+        double x = gamepad1.left_stick_x;
+        double y = -gamepad1.left_stick_y;
+        double rotation = gamepad1.right_stick_x;
+
+        double frontLeftPower = y + x + rotation;
+        double frontRightPower = -y + x + rotation;
+        double backLeftPower = y - x + rotation;
+        double backRightPower = y + x - rotation;
+
+        double maxPower = Math.max(Math.abs(frontLeftPower), Math.max(Math.abs(frontRightPower), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
+        if (maxPower > 1.0) {
+            frontLeftPower /= maxPower;
+            frontRightPower /= maxPower;
+            backLeftPower /= maxPower;
+            backRightPower /= maxPower;
+        }
+
+        frontLeftMotor.setPower(frontLeftPower);
+        frontRightMotor.setPower(frontRightPower);
+        backLeftMotor.setPower(backLeftPower);
+        backRightMotor.setPower(backRightPower);
+
+        //_______________________________________________
 
         // Encoder-based Linear Slide Control
         if (gamepad2.a) {
@@ -74,8 +101,8 @@ public class MecanumField extends OpMode {
             // Check if motors have reached the target position
             if (!outtakeMotorLeft.isBusy() && !outtakeMotorRight.isBusy()) {
                 // Stop motors and revert to manual mode
-                outtakeMotorLeft.setPower(0);
-                outtakeMotorRight.setPower(0);
+                outtakeMotorLeft.setPower(HOLDING_POWER);
+                outtakeMotorRight.setPower(HOLDING_POWER);
                 outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 isAutomatedControl = false;
@@ -83,8 +110,14 @@ public class MecanumField extends OpMode {
         } else {
             // Manual Control for Linear Slides
             double manualPower = -gamepad2.left_stick_y * 0.6; // Scale power for manual control
-            outtakeMotorLeft.setPower(manualPower);
-            outtakeMotorRight.setPower(manualPower);
+            if (Math.abs(manualPower) > 0.05) {  // Apply only if joystick input is significant
+                outtakeMotorLeft.setPower(manualPower);
+                outtakeMotorRight.setPower(manualPower);
+            } else {
+                // Apply holding power when idle
+                outtakeMotorLeft.setPower(HOLDING_POWER);
+                outtakeMotorRight.setPower(HOLDING_POWER);
+            }
         }
 
         // Telemetry for debugging
