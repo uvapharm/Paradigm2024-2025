@@ -10,8 +10,8 @@ public class MecanumField extends OpMode {
 
     // Linear Slide Encoder Target Positions
     private final int LOW_POSITION = 0;
-    private final int MEDIUM_POSITION = 1000; // Adjust these values based on testing
-    private final int HIGH_POSITION = 2000;
+    private final int MEDIUM_POSITION = 1500; // Adjust these values based on testing
+    private final int HIGH_POSITION = 3000;
 
     // Current target position
     private int targetPosition = LOW_POSITION;
@@ -19,7 +19,7 @@ public class MecanumField extends OpMode {
 
 
     // Define a small holding power to prevent sliding
-    private final double HOLDING_POWER = 0.1;  // Adjust this value as needed
+    private final double HOLDING_POWER = 0;  // Adjust this value as needed
 
     @Override
     public void init() {
@@ -36,14 +36,14 @@ public class MecanumField extends OpMode {
 
         // Set zero power behavior to brake for both slide motors
         outtakeMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtakeMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //outtakeMotorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Reset encoder and set motors to use encoders initially
         outtakeMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+       // outtakeMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+       // outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
@@ -88,23 +88,23 @@ public class MecanumField extends OpMode {
         if (isAutomatedControl) {
             // Set target positions for both motors
             outtakeMotorLeft.setTargetPosition(targetPosition);
-            outtakeMotorRight.setTargetPosition(targetPosition); // Use the same target for both
+           // outtakeMotorRight.setTargetPosition(targetPosition); // Use the same target for both
 
             // Switch to RUN_TO_POSITION mode
             outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+           // outtakeMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // Apply power to reach the target
             outtakeMotorLeft.setPower(0.5);
-            outtakeMotorRight.setPower(0.5);
+           // outtakeMotorRight.setPower(0.5);
 
             // Check if motors have reached the target position
-            if (!outtakeMotorLeft.isBusy() && !outtakeMotorRight.isBusy()) {
+            if (!outtakeMotorLeft.isBusy()) {
                 // Stop motors and revert to manual mode
                 outtakeMotorLeft.setPower(HOLDING_POWER);
-                outtakeMotorRight.setPower(HOLDING_POWER);
+              //  outtakeMotorRight.setPower(HOLDING_POWER);
                 outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+             //   outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 isAutomatedControl = false;
             }
         } else {
