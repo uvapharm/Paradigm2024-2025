@@ -25,4 +25,6 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'com.qualcomm.ftc:RobotCore:8.1.1' // Use the latest version of the SDK
+    implementation 'com.qualcomm.ftc:Hardware:8.1.1'  // Ensure this dependency is included
 }
