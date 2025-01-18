@@ -56,12 +56,14 @@ public class MecanumField extends OpMode {
 
         boolean currClaw = gamepad2.a;
         // Basic mecanum drive logic
-        double x = gamepad1.left_stick_x * 0.6; // Strafe
-        double y = -gamepad1.left_stick_y * 0.6; // Forward/backward
-        double rotation = gamepad1.right_stick_x * 0.6; // Rotation
+
+        // Driving logic
+        double x = gamepad1.left_stick_x;
+        double y = -gamepad1.left_stick_y;
+        double rotation = 0.6*gamepad1.right_stick_x;
 
         double frontLeftPower = y + x + rotation;
-        double frontRightPower = y - x - rotation;
+        double frontRightPower = -y + x + rotation;
         double backLeftPower = y - x + rotation;
         double backRightPower = y + x - rotation;
 
@@ -77,6 +79,8 @@ public class MecanumField extends OpMode {
         frontRightMotor.setPower(frontRightPower);
         backLeftMotor.setPower(backLeftPower);
         backRightMotor.setPower(backRightPower);
+
+
 
         //-----------------------------------------------------------------------------------------
 
@@ -140,9 +144,9 @@ public class MecanumField extends OpMode {
             }
         } else {
             if (gamepad2.right_bumper) {
-                outtakeMotorLeft.setPower(0.5);
+                outtakeMotorLeft.setPower(0.25);
             } else if (gamepad2.left_bumper) {
-                outtakeMotorLeft.setPower(-0.5);
+                outtakeMotorLeft.setPower(-0.25);
             } else {
                 outtakeMotorLeft.setPower(HOLDING_POWER); // Adjust holding power if necessary
             }
@@ -162,9 +166,8 @@ public class MecanumField extends OpMode {
         } else {
             double horizontalPower = -gamepad2.left_stick_y * 0.6;
             if (Math.abs(horizontalPower) > 0.05) {
-                outtakeMotorRight.setPower(-horizontalPower);
-            } else {
-                outtakeMotorRight.setPower(HOLDING_POWER); // Adjust holding power if necessary
+                outtakeMotorRight.setPower(-horizontalPower*0.8);
+
             }
         }
 
