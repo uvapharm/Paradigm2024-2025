@@ -9,7 +9,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class MecanumField extends OpMode {
 
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
-    Servo claw, wrist;
+    Servo arm, bucket, claw;
+
 
     // Linear Slide Encoder Target Positions
     private final int LOW_POSITION = 0;
@@ -40,8 +41,9 @@ public class MecanumField extends OpMode {
         outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Servos
-        claw = hardwareMap.get(Servo.class, "claw");
-        wrist = hardwareMap.get(Servo.class, "wrist");
+        arm = hardwareMap.get(Servo.class, "arm");
+        bucket = hardwareMap.get(Servo.class, "bucket");
+        bucket = hardwareMap.get(Servo.class, "claw");
     }
 
     @Override
@@ -73,15 +75,24 @@ public class MecanumField extends OpMode {
 
         // Servos
         if (gamepad2.a) {
-            claw.setPosition(0.8);
+            arm.setPosition(0.8);
         } else {
-            claw.setPosition(0);
+            arm.setPosition(0);
         }
 
+
+        //bucket
         if (gamepad2.b) {
-            wrist.setPosition(0.8);
+            bucket.setPosition(-0.8);
         } else {
-            wrist.setPosition(0);
+            bucket.setPosition(-0.5);
+        }
+
+
+        if (gamepad2.b) {
+            claw.setPosition(0);
+        } else {
+            claw.setPosition(0.5);
         }
 
         // Encoder-based Linear Slide Control
@@ -145,6 +156,9 @@ public class MecanumField extends OpMode {
         telemetry.addData("Automated Vertical", isAutomatedVertical);
         telemetry.addData("Horizontal Position", outtakeMotorRight.getCurrentPosition());
         telemetry.addData("Automated Horizontal", isAutomatedHorizontal);
+        telemetry.addData("arm",arm.getPosition());
+        telemetry.addData("bucket",bucket.getPosition());
+        telemetry.addData("wrist",claw.getPosition());
         telemetry.update();
     }
 }
