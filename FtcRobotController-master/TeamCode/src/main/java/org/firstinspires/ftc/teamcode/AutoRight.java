@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class AutoRight extends LinearOpMode {
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
 
-    int targetPos = 0;
+    int targetPos = 1000;
 
     public void runOpMode() {
 

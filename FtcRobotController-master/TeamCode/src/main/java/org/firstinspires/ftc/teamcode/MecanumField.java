@@ -169,6 +169,10 @@ public class MecanumField extends OpMode {
                 outtakeMotorRight.setPower(-horizontalPower*0.8);
 
             }
+            //new code posible fix to slide issue
+            else {
+                outtakeMotorRight.setPower(0);
+            }
         }
 
         prevClaw = currClaw;
