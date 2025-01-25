@@ -2,58 +2,112 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="AutoRight")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "AutoForward")
 public class AutoRight extends LinearOpMode {
-    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
 
-    int targetPos = 1000;
+    // Declare motor variables
+    private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
 
+    private double time = 0;
+    private double timeint = 0;
+
+    @Override
     public void runOpMode() {
-
+        // Initialize motors
         frontLeftMotor = hardwareMap.get(DcMotor.class, "front_left_motor");
         frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
 
-        if (opModeIsActive()) {
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
+
+        // Wait for the start of the autonomous period
+        waitForStart();
+
+        frontLeftMotor.setPower(0.4);
+        frontRightMotor.setPower(0.4);
+
+
+
+        sleep(4000);
+
+        frontLeftMotor.setPower(0);
+        frontRightMotor.setPower(0);
+
+
+
+    }
+}
+
+        /*
+        timeint = getRuntime();
+
+        while (time < 1000+timeint) {
+            frontLeftMotor.setPower(0.3);
+            frontRightMotor.setPower(0.3);
+            time = getRuntime();
+        }
+        time = getRuntime();
+        if (time > 10000+timeint){
+
+            frontLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
+            time = getRuntime();
+
+
+        }
+
+
+
+
+
+    }
+}
+
+        if (opModeIsActive()) {
+            // Set the target position for all motors
+            int targetPos = 1000; // Adjust based on your robot's wheel circumference and encoder counts
             frontLeftMotor.setTargetPosition(targetPos);
             frontRightMotor.setTargetPosition(targetPos);
-            backLeftMotor.setTargetPosition(targetPos);
-            backRightMotor.setTargetPosition(targetPos);
-            // outtakeMotorRight.setTargetPosition(targetPosition); // Use the same target for both
+
 
             // Switch to RUN_TO_POSITION mode
             frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            // outtakeMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // Apply power to move the robot forward
+            double motorPower = 0.5; // Adjust as needed
+            frontLeftMotor.setPower(motorPower);
+            frontRightMotor.setPower(motorPower);
 
-            // Apply power to reach the target
-            frontLeftMotor.setPower(0.5);
-            frontRightMotor.setPower(0.5);
-            backLeftMotor.setPower(0.5);
-            backRightMotor.setPower(0.5);
-            // outtakeMotorRight.setPower(0.5);
 
-            // Check if motors have reached the target position
-            if (!frontLeftMotor.isBusy() && !frontRightMotor.isBusy() && !backLeftMotor.isBusy() && !backRightMotor.isBusy()) {
-                // Stop motors and revert to manual mode
-                frontLeftMotor.setPower(0);
-                frontRightMotor.setPower(0);
-                backLeftMotor.setPower(0);
-                backRightMotor.setPower(0);
-                //  outtakeMotorRight.setPower(HOLDING_POWER);
-                frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // Wait for approximately 3 seconds or until the motors reach their target
+            while (opModeIsActive() &&
+                    (frontLeftMotor.isBusy() || frontRightMotor.isBusy())) {
+                telemetry.addData("Status", "Motors running to target");
+                telemetry.update();
             }
 
-        }
+            // Stop all motors
+            frontLeftMotor.setPower(0);
+            frontRightMotor.setPower(0);
 
+
+            // Revert motors to manual mode
+            frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        }
     }
-}
+
+
+
+         */
+
+
+
+

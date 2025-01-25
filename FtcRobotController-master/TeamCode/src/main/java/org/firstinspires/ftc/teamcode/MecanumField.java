@@ -1,10 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+
+import java.util.concurrent.TimeUnit;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Mecanum Drive")
 public class MecanumField extends OpMode {
@@ -12,6 +20,8 @@ public class MecanumField extends OpMode {
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
     CRServo arm, bucket;
     Servo claw;
+
+    IMU imu;
 
 
     // Linear Slide Encoder Target Positions
@@ -32,8 +42,8 @@ public class MecanumField extends OpMode {
     public void init() {
         // Motors
         frontLeftMotor = hardwareMap.get(DcMotor.class, "front_left_motor");
-        frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
+        frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
         outtakeMotorLeft = hardwareMap.get(DcMotor.class, "outLeft");
         outtakeMotorRight = hardwareMap.get(DcMotor.class, "outRight");
@@ -49,6 +59,19 @@ public class MecanumField extends OpMode {
         arm = hardwareMap.get(CRServo.class, "arm");
         bucket = hardwareMap.get(CRServo.class, "bucket");
         claw = hardwareMap.get(Servo.class, "claw");
+
+
+
+
+        Deadline gamepadRateLimit = new Deadline(500, TimeUnit.MILLISECONDS);
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+        ));
+        imu.initialize(parameters);
+        imu.resetYaw();
     }
 
     @Override
@@ -58,27 +81,23 @@ public class MecanumField extends OpMode {
         // Basic mecanum drive logic
 
         // Driving logic
-        double x = gamepad1.left_stick_x;
-        double y = -gamepad1.left_stick_y;
-        double rotation = 0.6*gamepad1.right_stick_x;
+        double lx = 0.6*gamepad1.left_stick_x;
+        double ly = -0.6*gamepad1.left_stick_y;
+        double rx = 0.6*gamepad1.right_stick_x;
 
-        double frontLeftPower = y + x + rotation;
-        double frontRightPower = -y + x + rotation;
-        double backLeftPower = y - x + rotation;
-        double backRightPower = y + x - rotation;
+        double max = Math.max(Math.abs(lx) + Math.abs(ly) + Math.abs(rx), 1);
 
-        double maxPower = Math.max(Math.abs(frontLeftPower), Math.max(Math.abs(frontRightPower), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
-        if (maxPower > 1.0) {
-            frontLeftPower /= maxPower;
-            frontRightPower /= maxPower;
-            backLeftPower /= maxPower;
-            backRightPower /= maxPower;
-        }
+        double drivePower = 0.8 - (0.6 * gamepad1.right_trigger);
 
-        frontLeftMotor.setPower(frontLeftPower);
-        frontRightMotor.setPower(frontRightPower);
-        backLeftMotor.setPower(backLeftPower);
-        backRightMotor.setPower(backRightPower);
+
+        double heading = -1*imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double adjustedLx = -ly * Math.sin(heading) + lx * Math.cos(heading);
+        double adjustedLy = ly * Math.cos(heading) + lx * Math.sin(heading);
+
+        frontLeftMotor.setPower(((adjustedLy + adjustedLx + rx) / max) * drivePower);
+        backLeftMotor.setPower(((adjustedLy - adjustedLx + rx) / max) * drivePower);
+        frontRightMotor.setPower(((-adjustedLy + adjustedLx + rx) / max) * drivePower);
+        backRightMotor.setPower(((adjustedLy + adjustedLx - rx) / max) * drivePower);
 
 
 
@@ -94,9 +113,9 @@ public class MecanumField extends OpMode {
 
         //bucket (continuous)
         if (gamepad2.b) {
-            bucket.setPower(-0.2);
+            bucket.setPower(-0.15);
         } else if (gamepad2.x){
-            bucket.setPower(0.2);
+            bucket.setPower(0.15);
         }else {
             bucket.setPower(0);
         }
@@ -105,10 +124,10 @@ public class MecanumField extends OpMode {
         //claw (NOT continuous)
         if (currClaw && !prevClaw){
             if (clawClosed){
-                claw.setPosition(0.5);
+                claw.setPosition(0.58);
             } else{
 
-                claw.setPosition(0.3);
+                claw.setPosition(0.35);
             }
 
             clawClosed = !(clawClosed);
@@ -144,7 +163,12 @@ public class MecanumField extends OpMode {
             }
         } else {
             if (gamepad2.right_bumper) {
-                outtakeMotorLeft.setPower(0.25);
+
+                if (outtakeMotorRight.getCurrentPosition()<-3000){
+                    outtakeMotorLeft.setPower(0);
+                }else {
+                    outtakeMotorLeft.setPower(0.25);
+                }
             } else if (gamepad2.left_bumper) {
                 outtakeMotorLeft.setPower(-0.25);
             } else {
@@ -182,9 +206,11 @@ public class MecanumField extends OpMode {
         telemetry.addData("Automated Vertical", isAutomatedVertical);
         telemetry.addData("Horizontal Position", outtakeMotorRight.getCurrentPosition());
         telemetry.addData("Automated Horizontal", isAutomatedHorizontal);
-       // telemetry.addData("arm",arm.getPosition());
+        // telemetry.addData("arm",arm.getPosition());
         //telemetry.addData("bucket",bucket.getPosition());
         telemetry.addData("wrist",claw.getPosition());
+        telemetry.addData("IMU Status", imu.getRobotYawPitchRollAngles());
+        telemetry.addData("Heading",heading);
         telemetry.update();
     }
 }
