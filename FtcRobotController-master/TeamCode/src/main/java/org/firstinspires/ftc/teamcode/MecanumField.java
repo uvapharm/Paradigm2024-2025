@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Mecanum Drive")
 public class MecanumField extends OpMode {
 
-    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, outtakeMotorLeft, outtakeMotorRight;
+    DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, vertical, horizontal;
     CRServo arm, bucket;
     Servo claw;
 
@@ -45,15 +45,15 @@ public class MecanumField extends OpMode {
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
-        outtakeMotorLeft = hardwareMap.get(DcMotor.class, "outLeft");
-        outtakeMotorRight = hardwareMap.get(DcMotor.class, "outRight");
+        vertical = hardwareMap.get(DcMotor.class, "outLeft");
+        horizontal = hardwareMap.get(DcMotor.class, "outRight");
 
-        outtakeMotorLeft.setDirection(DcMotor.Direction.REVERSE);
-        outtakeMotorRight.setDirection(DcMotor.Direction.FORWARD);
+        vertical.setDirection(DcMotor.Direction.REVERSE);
+        horizontal.setDirection(DcMotor.Direction.FORWARD);
 
-        outtakeMotorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtakeMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        vertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Servos
         arm = hardwareMap.get(CRServo.class, "arm");
@@ -121,6 +121,8 @@ public class MecanumField extends OpMode {
         }
 
 
+
+
         //claw (NOT continuous)
         if (currClaw && !prevClaw){
             if (clawClosed){
@@ -152,60 +154,58 @@ public class MecanumField extends OpMode {
 
         // Vertical Automated + Manual Control
         if (isAutomatedVertical) {
-            outtakeMotorLeft.setTargetPosition(targetPosition);
-            outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeMotorLeft.setPower(0.5);
+            vertical.setTargetPosition(targetPosition);
+            vertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            vertical.setPower(0.5);
 
-            if (!outtakeMotorLeft.isBusy()) {
-                outtakeMotorLeft.setPower(HOLDING_POWER);
-                outtakeMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (!vertical.isBusy()) {
+                vertical.setPower(HOLDING_POWER);
+                vertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 isAutomatedVertical = false;
             }
         } else {
             if (gamepad2.right_bumper) {
 
-                if (outtakeMotorRight.getCurrentPosition()<-3000){
-                    outtakeMotorLeft.setPower(0);
+                if (horizontal.getCurrentPosition()<-3000){
+                    vertical.setPower(0);
                 }else {
-                    outtakeMotorLeft.setPower(0.25);
+                    vertical.setPower(0.25);
                 }
             } else if (gamepad2.left_bumper) {
-                outtakeMotorLeft.setPower(-0.25);
+                vertical.setPower(-0.25);
             } else {
-                outtakeMotorLeft.setPower(HOLDING_POWER); // Adjust holding power if necessary
+                vertical.setPower(HOLDING_POWER); // Adjust holding power if necessary
             }
         }
 
         // Horizontal Automated + Manual Control
         if (isAutomatedHorizontal) {
-            outtakeMotorRight.setTargetPosition(targetPosition);
-            outtakeMotorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            outtakeMotorRight.setPower(0.5);
+            horizontal.setTargetPosition(targetPosition);
+            horizontal.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            horizontal.setPower(0.5);
 
-            if (!outtakeMotorRight.isBusy()) {
-                outtakeMotorRight.setPower(HOLDING_POWER);
-                outtakeMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            if (!horizontal.isBusy()) {
+                horizontal.setPower(HOLDING_POWER);
+                horizontal.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 isAutomatedHorizontal = false;
             }
         } else {
             double horizontalPower = -gamepad2.left_stick_y * 0.6;
             if (Math.abs(horizontalPower) > 0.05) {
-                outtakeMotorRight.setPower(-horizontalPower*0.8);
+                horizontal.setPower(-horizontalPower*0.8);
 
             }
             //new code posible fix to slide issue
             else {
-                outtakeMotorRight.setPower(0);
+                horizontal.setPower(0);
             }
         }
 
         prevClaw = currClaw;
 
-        telemetry.addData("Target Position", targetPosition);
-        telemetry.addData("Slide Position", outtakeMotorLeft.getCurrentPosition());
-        telemetry.addData("Automated Vertical", isAutomatedVertical);
-        telemetry.addData("Horizontal Position", outtakeMotorRight.getCurrentPosition());
-        telemetry.addData("Automated Horizontal", isAutomatedHorizontal);
+
+        telemetry.addData("Vertical", vertical.getCurrentPosition());
+        telemetry.addData("Horizontal", horizontal.getCurrentPosition());
         // telemetry.addData("arm",arm.getPosition());
         //telemetry.addData("bucket",bucket.getPosition());
         telemetry.addData("wrist",claw.getPosition());
