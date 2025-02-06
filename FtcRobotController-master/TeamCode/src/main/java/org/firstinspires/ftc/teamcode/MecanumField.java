@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class MecanumField extends OpMode {
 
     DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor, vertical, horizontal;
-    CRServo arm, bucket;
-    Servo claw;
+    //CRServo arm;
+    Servo claw,bucket,arm;
 
     IMU imu;
 
@@ -33,8 +33,9 @@ public class MecanumField extends OpMode {
     private boolean isAutomatedVertical = false;
     private boolean isAutomatedHorizontal = false;
 
-    private boolean prevClaw = false;
-    private boolean clawClosed = false;
+    private boolean prevClaw,prevArm,prevBucket = false;
+    private boolean clawClosed,armClosed,bucketClosed = false;
+
 
     private final double HOLDING_POWER = 0;  // Adjust as needed
 
@@ -56,8 +57,8 @@ public class MecanumField extends OpMode {
         vertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Servos
-        arm = hardwareMap.get(CRServo.class, "arm");
-        bucket = hardwareMap.get(CRServo.class, "bucket");
+        arm = hardwareMap.get(Servo.class, "arm");
+        bucket = hardwareMap.get(Servo.class, "bucket");
         claw = hardwareMap.get(Servo.class, "claw");
 
 
@@ -78,6 +79,8 @@ public class MecanumField extends OpMode {
     public void loop() {
 
         boolean currClaw = gamepad2.a;
+        boolean currArm = gamepad2.x;
+        boolean currBucket = gamepad2.b;
         // Basic mecanum drive logic
 
         // Driving logic
@@ -108,28 +111,59 @@ public class MecanumField extends OpMode {
 
 
         // arm (continuous)
-        arm.setPower(gamepad2.right_stick_y);
+      //  if (gamepad2.x){
+        //    arm.setPosition(0.55);
+        //}else{
+          //  arm.setPosition(0.05);
+        //}
+
+        if (currArm && !prevArm){
+            if (armClosed){
+                arm.setPosition(0.55);
+            } else{
+
+                arm.setPosition(0.05);
+            }
+
+            armClosed = !(armClosed);
+
+        }
 
 
-        //bucket (continuous)
-        if (gamepad2.b) {
-            bucket.setPower(-0.15);
-        } else if (gamepad2.x){
-            bucket.setPower(0.15);
-        }else {
-            bucket.setPower(0);
+
+        //bucket
+     //   if (gamepad2.b) {
+       //     bucket.setPosition(0);
+        //} else {
+          //  bucket.setPosition(1);
+        //}
+
+
+        if (currBucket && !prevBucket){
+            if (bucketClosed){
+                bucket.setPosition(0);
+            } else{
+
+                bucket.setPosition(1);
+            }
+
+            bucketClosed = !(bucketClosed);
+
         }
 
 
 
 
+
+
         //claw (NOT continuous)
+        //0.9=open, 0.7=closed
         if (currClaw && !prevClaw){
             if (clawClosed){
-                claw.setPosition(0.58);
+                claw.setPosition(0.7);
             } else{
 
-                claw.setPosition(0.35);
+                claw.setPosition(0.9);
             }
 
             clawClosed = !(clawClosed);
@@ -202,14 +236,15 @@ public class MecanumField extends OpMode {
         }
 
         prevClaw = currClaw;
+        prevArm = currArm;
+        prevBucket = currBucket;
 
 
-        telemetry.addData("Vertical", vertical.getCurrentPosition());
-        telemetry.addData("Horizontal", horizontal.getCurrentPosition());
-        // telemetry.addData("arm",arm.getPosition());
-        //telemetry.addData("bucket",bucket.getPosition());
-        telemetry.addData("wrist",claw.getPosition());
-        telemetry.addData("IMU Status", imu.getRobotYawPitchRollAngles());
+        telemetry.addData("Vertical Slide", vertical.getCurrentPosition());
+        telemetry.addData("Horizontal Slide", horizontal.getCurrentPosition());
+        telemetry.addData("Arm Position",arm.getPosition());
+        telemetry.addData("Bucket Position",bucket.getPosition());
+        telemetry.addData("Claw Position",claw.getPosition());
         telemetry.addData("Heading",heading);
         telemetry.update();
     }
