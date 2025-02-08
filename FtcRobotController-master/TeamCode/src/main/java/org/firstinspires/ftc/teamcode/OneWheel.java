@@ -33,7 +33,7 @@ public class OneWheel extends OpMode {
     @Override
     public void init() {
         // Motors
-        motor = hardwareMap.get(DcMotor.class, "back_right_motor");
+        motor = hardwareMap.get(DcMotor.class, "front_left_motor");
 
     }
 

@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "AutoForward")
 public class AutoRight extends LinearOpMode {
 
     // Declare motor variables
-    private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
+    private DcMotor frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor,vertical,horizontal;
+    Servo claw, bucket, arm;
 
     private double time = 0;
     private double timeint = 0;
@@ -20,9 +22,29 @@ public class AutoRight extends LinearOpMode {
         frontRightMotor = hardwareMap.get(DcMotor.class, "front_right_motor");
         backLeftMotor = hardwareMap.get(DcMotor.class, "back_left_motor");
         backRightMotor = hardwareMap.get(DcMotor.class, "back_right_motor");
+        vertical = hardwareMap.get(DcMotor.class, "outLeft");
+        horizontal = hardwareMap.get(DcMotor.class, "outRight");
 
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+
+
+        vertical.setDirection(DcMotor.Direction.REVERSE);
+        horizontal.setDirection(DcMotor.Direction.REVERSE);
+
+        vertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        horizontal.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        horizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        horizontal.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        arm = hardwareMap.get(Servo.class, "arm");
+        bucket = hardwareMap.get(Servo.class, "bucket");
+        claw = hardwareMap.get(Servo.class, "claw");
+
 
 
         // Wait for the start of the autonomous period
